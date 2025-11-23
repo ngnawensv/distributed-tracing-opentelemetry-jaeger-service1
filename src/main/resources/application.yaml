@@ -1,0 +1,93 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: Service 1
+
+tracing:
+  url: http://localhost:4318/v1/traces
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,metrics,info,tracing
+      base-path: /management  # Change from default /actuator
+      endpoint:
+        health:
+          show-details: when_authorized
+          show-components: when_authorized
+        metrics:
+          enabled: true
+        info:
+          enabled: true
+        tracing:
+          enabled: true
+
+  tracing:
+    sampling:
+      #probability: 1.0	- Trace every single request-Development, debugging critical issues.
+      #probability: 0.5 - Trace half of the requests - Moderate traffic, general purpose.
+      #probability: 0.01 - Trace 1 out of every 100 requests - High-traffic production (default in many systems).
+      probability: 1.0
+
+logging:
+  # Activate this level to display the trace
+  level:
+        ### First approche
+    # OpenTelemetry and tracing related logs
+    #io.opentelemetry: DEBUG
+    #io.micrometer: DEBUG
+    #org.springframework.web: DEBUG
+    cm.belrose: DEBUG
+    # HTTP request tracing
+    #org.apache.http: DEBUG
+
+    # RestTemplate logging
+    org.springframework.web.client.RestTemplate: DEBUG
+
+    # RestClient logging
+    org.springframework.web.client: DEBUG
+    #org.springframework.web.client.DefaultRestClient: WARN  # Specifically target this class
+
+    # WebClient logging
+    org.springframework.web.reactive.function.client: DEBUG
+
+    ### Second approche
+    # Set everything to INFO to suppress DEBUG logs
+    #root: INFO
+    # Your application package - set to DEBUG to see your custom logs
+    #cm.belrose: DEBUG
+    # Specifically suppress verbose packages
+    #org.springframework.web: WARN
+    #org.springframework.web.client: WARN
+    #org.hibernate: WARN
+    #io.micrometer: WARN
+    #io.opentelemetry: WARN
+
+    ### Third approch
+    # Root level
+    #root: INFO
+
+    # Your application logs
+    #cm.belrose: INFO
+
+    # Essential tracing packages - MUST be at least INFO
+    #io.micrometer.tracing: INFO
+    #io.opentelemetry.api: INFO
+    #io.opentelemetry.context: INFO
+
+    # Framework packages - reduce noise but keep functional
+    #org.springframework.web: INFO
+    #org.springframework.web.servlet: INFO
+    #org.springframework.web.client: INFO
+    #org.springframework.boot.autoconfigure: INFO
+
+    # Verbose packages to suppress
+    #org.hibernate: WARN
+    #org.apache: WARN
+    #ch.qos.logback: WARN
+  pattern:
+    level: "%5p [Service:${spring.application.name:}, TraceId:%X{traceId:-}, SpanId:%X{spanId:-}]"
+
